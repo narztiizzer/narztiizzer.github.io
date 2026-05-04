@@ -1,0 +1,22 @@
+{
+  "boards": [
+    {
+      "id": "went-well",
+      "title": "What went well?",
+      "color": "bg-green-100",
+      "headerColor": "bg-green-500"
+    },
+    {
+      "id": "to-improve",
+      "title": "What can be improved?",
+      "color": "bg-red-100",
+      "headerColor": "bg-red-500"
+    },
+    {
+      "id": "action-items",
+      "title": "Action Items",
+      "color": "bg-blue-100",
+      "headerColor": "bg-blue-500"
+    }
+  ]
+}
