@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
 import { LogOut, User, ChevronLeft, Layout, Share2, Check } from 'lucide-react';
-import { supabase } from '../services/supabase';
 
 interface HeaderProps {
   userName: string;
   sessionTitle?: string;
   onBack?: () => void;
+  onLogout: () => void;
   sessionId?: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ userName, sessionTitle, onBack, sessionId }) => {
+const Header: React.FC<HeaderProps> = ({ userName, sessionTitle, onBack, onLogout, sessionId }) => {
   const [copied, setCopied] = useState(false);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-  };
 
   const handleShare = () => {
     if (!sessionId) return;
@@ -72,7 +68,7 @@ const Header: React.FC<HeaderProps> = ({ userName, sessionTitle, onBack, session
           <span className="font-medium text-sm">{userName}</span>
         </div>
         <button 
-          onClick={handleLogout}
+          onClick={onLogout}
           className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
           title="Logout"
         >

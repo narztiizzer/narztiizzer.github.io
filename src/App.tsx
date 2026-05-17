@@ -278,6 +278,23 @@ const App: React.FC = () => {
     if (error) console.error('Error syncing positions:', error);
   };
 
+  const handleLogout = async () => {
+    if (authSession) {
+      await supabase.auth.signOut();
+    } else {
+      localStorage.removeItem('guestName');
+      localStorage.removeItem('guestId');
+      setGuestName(null);
+      // If they were on a shared session, clear it to return to Auth screen
+      if (!authSession) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('session');
+        window.history.pushState({}, '', url.toString());
+        setCurrentSession(null);
+      }
+    }
+  };
+
   const handleJoinAsGuest = (name: string) => {
     localStorage.setItem('guestName', name);
     setGuestName(name);
@@ -318,7 +335,7 @@ const App: React.FC = () => {
   if (authSession && !currentSession) {
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col">
-        <Header userName={userName} />
+        <Header userName={userName} onLogout={handleLogout} />
         <main className="flex-1 flex overflow-hidden">
           <SessionDashboard onSelectSession={(s) => {
             const url = new URL(window.location.href);
@@ -337,6 +354,7 @@ const App: React.FC = () => {
         userName={userName} 
         sessionTitle={currentSession?.title} 
         onBack={authSession ? handleBackToDashboard : undefined}
+        onLogout={handleLogout}
         sessionId={currentSession?.id}
       />
       <main className="flex-1 p-6 overflow-x-auto">
