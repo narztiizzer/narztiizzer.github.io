@@ -8,6 +8,43 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Boot watchdog: if the app never mounts (bundle 404, stale cache,
+      // build error, missing env), show a readable message instead of a
+      // silent white page. Runs inline, so it works even when the module
+      // bundle itself fails to load.
+      (function () {
+        var reported = false;
+        function report(detail) {
+          if (reported || window.__appMounted) return;
+          reported = true;
+          var root = document.getElementById('root');
+          if (!root) return;
+          root.innerHTML =
+            '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#fafafa">' +
+            '<pre style="font-family:ui-monospace,Menlo,monospace;font-size:14px;line-height:1.6;color:#b91c1c;background:#fff;border:1px solid #fecaca;border-radius:8px;padding:24px;max-width:640px;white-space:pre-wrap">App failed to load.\n\n' + detail +
+            '\n\nTry a hard refresh (Cmd+Shift-R). If it persists, open DevTools (F12) and check the Console / Network tabs.</pre></div>';
+        }
+        window.addEventListener('error', function (e) {
+          if (window.__appMounted) return;
+          var t = e.target;
+          if (t && (t.tagName === 'SCRIPT' || t.tagName === 'LINK')) {
+            report('Failed to load: ' + (t.src || t.href));
+          } else if (e.message) {
+            report(e.message + (e.filename ? '\n' + e.filename : ''));
+          }
+        }, true);
+        window.addEventListener('unhandledrejection', function (e) {
+          report('Unhandled error: ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason)));
+        });
+        setTimeout(function () {
+          var root = document.getElementById('root');
+          if (root && !root.childNodes.length) {
+            report('The app never rendered. A JavaScript error may have occurred before React mounted.');
+          }
+        }, 5000);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
